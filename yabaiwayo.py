@@ -43,7 +43,11 @@ def shuffle_and_concat(ims: [Image]) -> Image:
     random.shuffle(ims)
     _ims = []
     for im in ims:
-        _ims.append(im.rotate(180) if random.random() < .5 else im)
+        if random.random() < .5:
+            im = im.transpose(Image.FLIP_LEFT_RIGHT)
+        if random.random() < .5:
+            im = im.transpose(Image.FLIP_TOP_BOTTOM)
+        _ims.append(im)
     ims = _ims
     width, height = ims[0].size
     width *= 2
