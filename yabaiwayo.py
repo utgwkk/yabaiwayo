@@ -1,4 +1,5 @@
 import sys
+import random
 from PIL import Image
 
 def resize_to_even(im: Image) -> Image:
@@ -35,7 +36,28 @@ def crop_image(im: Image) -> [Image]:
 
     return cropped_imgs
 
+def shuffle_and_concat(ims: [Image]) -> Image:
+    '''4つの画像をシャッフルしたり180度反転したりして、
+    左上・左下・右下・右上の順に結合する
+    '''
+    random.shuffle(ims)
+    _ims = []
+    for im in ims:
+        _ims.append(im.rotate(180) if random.random() < .5 else im)
+    ims = _ims
+    width, height = ims[0].size
+    width *= 2
+    height *= 2
+    dst = Image.new('RGB', (width, height))
+    half_width, half_height = ims[0].size
+    dst.paste(ims[0], (0, 0))
+    dst.paste(ims[1], (0, half_height))
+    dst.paste(ims[2], (half_width, half_height))
+    dst.paste(ims[3], (half_width, 0))
+    return dst
+
 if __name__ == '__main__':
     im = Image.open(sys.argv[1])
-    for i, _im in enumerate(crop_image(im)):
-        _im.save('{}.jpg'.format(i))
+    ims = crop_image(im)
+    out = shuffle_and_concat(ims)
+    out.save('out.jpg')
