@@ -40,24 +40,19 @@ def shuffle_and_concat(ims: [Image]) -> Image:
     '''4つの画像をシャッフルしたり180度反転したりして、
     左上・左下・右下・右上の順に結合する
     '''
-    random.shuffle(ims)
-    _ims = []
-    for im in ims:
-        if random.random() < .5:
-            im = im.transpose(Image.FLIP_LEFT_RIGHT)
-        if random.random() < .5:
-            im = im.transpose(Image.FLIP_TOP_BOTTOM)
-        _ims.append(im)
-    ims = _ims
     width, height = ims[0].size
     width *= 2
     height *= 2
     dst = Image.new('RGB', (width, height))
     half_width, half_height = ims[0].size
-    dst.paste(ims[0], (0, 0))
-    dst.paste(ims[1], (0, half_height))
-    dst.paste(ims[2], (half_width, half_height))
-    dst.paste(ims[3], (half_width, 0))
+    for box in [(0, 0), (0, half_height), (half_width, half_height), (half_width, 0)]:
+        im = random.choice(ims)
+        if random.random() < .5:
+            im = im.transpose(Image.FLIP_LEFT_RIGHT)
+        if random.random() < .5:
+            im = im.transpose(Image.FLIP_TOP_BOTTOM)
+        dst.paste(im, box)
+
     return dst
 
 if __name__ == '__main__':
